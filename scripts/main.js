@@ -3,31 +3,33 @@ var app = window.app || {};
 app.calculator = {
   
   data: {
+    expression: '',
     maxChars: 10,
     storedResult: null,
     currentValue: '0',
     currentOperation: null,
     mapKeys: {
-      48 : { type: 'input', value:  '0' },
-      49 : { type: 'input', value:  '1' },
-      50 : { type: 'input', value:  '2' },
-      51 : { type: 'input', value:  '3' },
-      52 : { type: 'input', value:  '4' },
-      53 : { type: 'input', value:  '5' },
-      54 : { type: 'input', value:  '6' },
-      55 : { type: 'input', value:  '7' },
-      56 : { type: 'input', value:  '8' },
-      57 : { type: 'input', value:  '9' },
-      190: { type: 'input', value:  '.' },
-      88 : { type: 'operation', value:  'exponent' },
-      47 : { type: 'operation', value:  'division' },
-      221: { type: 'operation', value:  'multiply' },
-      189: { type: 'operation', value:  'subtract' },
-      187: { type: 'operation', value:  'sum' },
-      67 : { type: 'clear', value:  'clear' },
-      13 : { type: 'result', value:  null },
-      8  : { type: 'delete', value:  null },
-      84 : { type: 'toggle', value:  'toggle' },
+      '0' : { type: 'input', value:  '0' },
+      '1' : { type: 'input', value:  '1' },
+      '2' : { type: 'input', value:  '2' },
+      '3' : { type: 'input', value:  '3' },
+      '4' : { type: 'input', value:  '4' },
+      '5' : { type: 'input', value:  '5' },
+      '6' : { type: 'input', value:  '6' },
+      '7' : { type: 'input', value:  '7' },
+      '8' : { type: 'input', value:  '8' },
+      '9' : { type: 'input', value:  '9' },
+      '.': { type: 'input', value:  '.' },
+      'Backspace' : { type: 'operation', value:  'exponent' },
+      '/' : { type: 'operation', value:  'division' },
+      '*': { type: 'operation', value:  'multiply' },
+      '-': { type: 'operation', value:  'subtract' },
+      '+': { type: 'operation', value:  'sum' },
+      'Escape' : { type: 'clear', value:  'clear' },
+      'Enter' : { type: 'result', value:  null },
+      '=' : { type: 'result', value:  null },
+      'Delete'  : { type: 'delete', value:  null },
+      't' : { type: 'toggle', value:  'toggle' },
     },
   },
   
@@ -54,10 +56,7 @@ app.calculator = {
   bindKeyboard () {
     document.addEventListener('keydown', (event) => {
       const mapKeys = app.calculator.data.mapKeys;
-      let keyCode = event.keyCode
-      if (keyCode === 55 && event.shiftKey) {
-        keyCode = 47;
-      }
+      let keyCode = event.key;
       if (mapKeys[keyCode]) {
         this.processUserInput(mapKeys[keyCode])
         this.activateButtonWithKeyboard(keyCode)
@@ -142,6 +141,8 @@ app.calculator = {
     if (userInput.type === 'toggle') {
       this.toggleNumber();
     }
+
+    this.updateExpression(userInput);
   },
   
   setNumber (newNumber) {
@@ -172,6 +173,55 @@ app.calculator = {
     this.data.storedResult = this.data.currentValue;
     this.data.currentValue = '0'
     this.data.currentOperation = newOperation;
+  },
+
+  updateExpression(userInput) {
+    switch(userInput.type) {
+      case 'input':
+        if(Number.isInteger) {
+          this.data.expression += userInput.value
+        }
+        break;
+      case 'operation':
+        var expression = ' ';
+        switch(userInput.value) {
+          case 'multiply':
+            expression += '*';
+            break;
+          case 'division':
+            expression += '/';
+            break;
+          case 'subtract':
+            expression += '-';
+            break;
+          case 'sum':
+            expression += '+';
+            break;
+        }
+        expression += ' ';
+
+        this.data.expression += expression
+        break;
+      case 'result':
+        this.data.expression += ' = ' + this.data.currentValue
+        break;
+      case 'clear':
+        break;
+    }
+
+    document.querySelector('.calculator__expression').innerHTML = this.trimExpression()
+  },
+
+  trimExpression() {
+    let expression = this.data.expression
+    let maximumExpressionCharacters = 40;
+
+    if(this.data.expression.length > maximumExpressionCharacters) {
+      let startingTrimOffset = this.data.expression.length - maximumExpressionCharacters
+      return ' ... ' + this.data.expression.substr(startingTrimOffset, this.data.expression.length)
+    } else {
+      return this.data.expression
+    }
   },
   
   showResult () {

@@ -80,6 +80,17 @@ h1 a {
   text-align: right;
 }
 
+.calculator__expression {
+  color: #ccc;
+  text-align: right;
+  width: 100%;  
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1;
+  min-height: 1em;
+  max-height: 1em;
+}
+
 .calculator__display.blink {
   
 }
