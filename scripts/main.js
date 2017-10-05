@@ -3,6 +3,7 @@ var app = window.app || {};
 app.calculator = {
   
   data: {
+    expression: '',
     maxChars: 10,
     storedResult: null,
     currentValue: '0',
@@ -26,6 +27,7 @@ app.calculator = {
       '+': { type: 'operation', value:  'sum' },
       'Escape' : { type: 'clear', value:  'clear' },
       'Enter' : { type: 'result', value:  null },
+      '=' : { type: 'result', value:  null },
       'Delete'  : { type: 'delete', value:  null },
       't' : { type: 'toggle', value:  'toggle' },
     },
@@ -139,6 +141,8 @@ app.calculator = {
     if (userInput.type === 'toggle') {
       this.toggleNumber();
     }
+
+    this.updateExpression(userInput);
   },
   
   setNumber (newNumber) {
@@ -169,6 +173,55 @@ app.calculator = {
     this.data.storedResult = this.data.currentValue;
     this.data.currentValue = '0'
     this.data.currentOperation = newOperation;
+  },
+
+  updateExpression(userInput) {
+    switch(userInput.type) {
+      case 'input':
+        if(Number.isInteger) {
+          this.data.expression += userInput.value
+        }
+        break;
+      case 'operation':
+        var expression = ' ';
+        switch(userInput.value) {
+          case 'multiply':
+            expression += '*';
+            break;
+          case 'division':
+            expression += '/';
+            break;
+          case 'subtract':
+            expression += '-';
+            break;
+          case 'sum':
+            expression += '+';
+            break;
+        }
+        expression += ' ';
+
+        this.data.expression += expression
+        break;
+      case 'result':
+        this.data.expression += ' = ' + this.data.currentValue
+        break;
+      case 'clear':
+        break;
+    }
+
+    document.querySelector('.calculator__expression').innerHTML = this.trimExpression()
+  },
+
+  trimExpression() {
+    let expression = this.data.expression
+    let maximumExpressionCharacters = 40;
+
+    if(this.data.expression.length > maximumExpressionCharacters) {
+      let startingTrimOffset = this.data.expression.length - maximumExpressionCharacters
+      return ' ... ' + this.data.expression.substr(startingTrimOffset, this.data.expression.length)
+    } else {
+      return this.data.expression
+    }
   },
   
   showResult () {
